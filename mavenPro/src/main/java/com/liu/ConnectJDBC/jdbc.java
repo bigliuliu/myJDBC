@@ -16,33 +16,46 @@ public class jdbc {
         {
             System.out.println("无法加载驱动.");
         }
-        try
-        {
-            con=DriverManager.getConnection(URL,"root","password");//这里输入你自己安装MySQL时候设置的用户名和密码，用户名默认为root
-            try {
-//                创建statement对象
-                Statement statement = con.createStatement();
-//              创建sql插入语句
-                String sql = "INSERT INTO student (name, gender, grade, score) VALUES ('小明', 1, 1, 88)";
-//               执行sql插入语句
-                int rowsAffected = statement.executeUpdate(sql);
-                if (rowsAffected >0){
-                    System.out.println("successful !" +rowsAffected);
-                }else {
-                    System.out.println("failed");
+//        try
+//        {
+//            con=DriverManager.getConnection(URL,"root","password");//这里输入你自己安装MySQL时候设置的用户名和密码，用户名默认为root
+//            try {
+////                创建statement对象
+//                Statement statement = con.createStatement();
+////              创建sql插入语句
+//                String sql = "INSERT INTO student (name, gender, grade, score) VALUES ('小明', 1, 1, 88)";
+////               执行sql插入语句
+//                int rowsAffected = statement.executeUpdate(sql);
+//                if (rowsAffected >0){
+//                    System.out.println("successful !" +rowsAffected);
+//                }else {
+//                    System.out.println("failed");
+//                }
+//                statement.close();
+//            }catch (SQLException e){
+//                e.printStackTrace();
+//            }
+//
+//
+//
+//            System.out.println("连接成功.");
+//        }
+//        catch(Exception e)
+//        {
+//            System.out.println("连接失败:" + e.getMessage());
+//        }
+        try(Connection conn = DriverManager.getConnection(URL,"root","password")){
+            try(PreparedStatement ps = conn.prepareStatement("SELECT id,score FROM student WHERE gender=?")){
+//                索引从1开始 ：parameterIndex,代表索引；x：代表sql查询语句中的gender的值
+                ps.setObject(1,2);
+                try(ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()){
+                        long id = rs.getLong("id");
+                        long score = rs.getLong("score");
+                        System.out.println("id:"+id+","+"score:"+score);
+                    }
                 }
-                statement.close();
-            }catch (SQLException e){
-                e.printStackTrace();
             }
-
-
-
-            System.out.println("连接成功.");
-        }
-        catch(Exception e)
-        {
-            System.out.println("连接失败:" + e.getMessage());
         }
     }
 }
