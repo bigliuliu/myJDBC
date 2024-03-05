@@ -58,25 +58,35 @@ public class jdbc {
 //                }
 //            }
 //            SQL 插入
-            try(PreparedStatement ps = conn.prepareStatement("INSERT INTO student (name,gender,grade,score) VALUE (?,?,?,?)",Statement.RETURN_GENERATED_KEYS)){
-//                ps.setObject(1,13);// 索引从1开始，id
-                ps.setObject(1,"自增测试2");//name
-                ps.setObject(2,1);//gender
-                ps.setObject(3,2);//grade
-                ps.setObject(4,89); //score
-                int n = ps.executeUpdate();
-                System.out.println("更新了"+n+"条数据");
-//                自增主键需要添加标志位
-                try(ResultSet rs = ps.getGeneratedKeys()){
-                    if(rs.next()){
-                        long id = rs.getLong(1); //索引从1开始
-                    }
-                }
-
-            }
-//            catch (SQLException e){
-//                e.printStackTrace();
+//            try(PreparedStatement ps = conn.prepareStatement("INSERT INTO student (name,gender,grade,score) VALUE (?,?,?,?)",Statement.RETURN_GENERATED_KEYS)){
+////                ps.setObject(1,13);// 索引从1开始，id
+//                ps.setObject(1,"自增测试2");//name
+//                ps.setObject(2,1);//gender
+//                ps.setObject(3,2);//grade
+//                ps.setObject(4,89); //score
+//                int n = ps.executeUpdate();
+//                System.out.println("更新了"+n+"条数据");
+////                自增主键需要添加标志位
+//                try(ResultSet rs = ps.getGeneratedKeys()){
+//                    if(rs.next()){
+//                        long id = rs.getLong(1); //索引从1开始
+//                    }
+//                }
+//
 //            }
+//            SQL 更新
+//            try(PreparedStatement ps = conn.prepareStatement("UPDATE student SET name=? WHERE id=?")){
+//                ps.setObject(1,"改变名字"); //索引从1开始
+//                ps.setObject(2,1); //id为1
+//                int n= ps.executeUpdate();
+//                System.out.println("修改了"+n+"条数据");
+//            }
+//            SQL删除
+            try(PreparedStatement ps = conn.prepareStatement("DELETE FROM student WHERE id=?")){
+                ps.setObject(1,21);
+                int n= ps.executeUpdate();
+                System.out.println("删除了"+n+"条数据");
+            }
         }
     }
 }
