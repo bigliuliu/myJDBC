@@ -6,7 +6,6 @@ public class jdbc {
     public static void main(String[] args) throws SQLException{
         String driver = "com.mysql.cj.jdbc.Driver";
         String URL = "jdbc:mysql://localhost:3306/student?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false";
-//        String URL = "jdbc:mysql://localhost:3306/mytestsql"
         Connection con = null;
         try
         {
@@ -44,18 +43,40 @@ public class jdbc {
 //        {
 //            System.out.println("连接失败:" + e.getMessage());
 //        }
+
         try(Connection conn = DriverManager.getConnection(URL,"root","password")){
-            try(PreparedStatement ps = conn.prepareStatement("SELECT id,score FROM student WHERE gender=?")){
-//                索引从1开始 ：parameterIndex,代表索引；x：代表sql查询语句中的gender的值
-                ps.setObject(1,2);
-                try(ResultSet rs = ps.executeQuery()) {
-                    while (rs.next()){
-                        long id = rs.getLong("id");
-                        long score = rs.getLong("score");
-                        System.out.println("id:"+id+","+"score:"+score);
+            //      SQL  查询
+//            try(PreparedStatement ps = conn.prepareStatement("SELECT id,score FROM student WHERE gender=?")){
+////                索引从1开始 ：parameterIndex,代表索引；x：代表sql查询语句中的gender的值
+//                ps.setObject(1,2);
+//                try(ResultSet rs = ps.executeQuery()) {
+//                    while (rs.next()){
+//                        long id = rs.getLong("id");
+//                        long score = rs.getLong("score");
+//                        System.out.println("id:"+id+","+"score:"+score);
+//                    }
+//                }
+//            }
+//            SQL 插入
+            try(PreparedStatement ps = conn.prepareStatement("INSERT INTO student (name,gender,grade,score) VALUE (?,?,?,?)",Statement.RETURN_GENERATED_KEYS)){
+//                ps.setObject(1,13);// 索引从1开始，id
+                ps.setObject(1,"自增测试2");//name
+                ps.setObject(2,1);//gender
+                ps.setObject(3,2);//grade
+                ps.setObject(4,89); //score
+                int n = ps.executeUpdate();
+                System.out.println("更新了"+n+"条数据");
+//                自增主键需要添加标志位
+                try(ResultSet rs = ps.getGeneratedKeys()){
+                    if(rs.next()){
+                        long id = rs.getLong(1); //索引从1开始
                     }
                 }
+
             }
+//            catch (SQLException e){
+//                e.printStackTrace();
+//            }
         }
     }
 }
