@@ -1,5 +1,6 @@
 package com.liu.learnjava;
 
+import com.liu.learnjava.service.FileResourceService;
 import com.liu.learnjava.service.MailSession;
 import com.liu.learnjava.service.User;
 import com.liu.learnjava.service.UserService;
@@ -20,6 +21,9 @@ public class AppConfig {
 		User user = userService.login("bob@example.com", "password");
 		userService.register("hhhhh@example.com", "password", "23");
 		context.getBean(MailSession.class);
+//		source
+		FileResourceService fileResourceService = context.getBean(FileResourceService.class);
+		fileResourceService.printLogo();
 		System.out.println(user.getName());
 //		关闭ioc容器
 		((ConfigurableApplicationContext) context).close();
@@ -31,9 +35,10 @@ public class AppConfig {
 	ZoneId createZoneOfZ() {
 		return ZoneId.of("Z");
 	}
+
 	@Bean
 	@Qualifier("utc8")
-	ZoneId createZoneOfUTC8(){
+	ZoneId createZoneOfUTC8() {
 		return ZoneId.of("UTC+08:00");
 	}
 }
