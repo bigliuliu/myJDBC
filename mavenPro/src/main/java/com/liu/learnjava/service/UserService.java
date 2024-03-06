@@ -1,11 +1,16 @@
 package com.liu.learnjava.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.time.*;
-public class UserService {
 
+@Component
+public class UserService {
+	@Autowired
 	private MailService mailService;
 
 	public void setMailService(MailService mailService) {

@@ -1,7 +1,10 @@
 package com.liu.learnjava.service;
+import org.springframework.stereotype.Component;
+
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.*;
+@Component
 public class MailService {
 	private ZoneId zoneId = ZoneId.systemDefault();
 
