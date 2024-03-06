@@ -1,16 +1,32 @@
 package com.liu.learnjava.service;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.*;
+
 @Component
 public class MailService {
-	private ZoneId zoneId = ZoneId.systemDefault();
-
-	public void setZoneId(ZoneId zoneId) {
-		this.zoneId = zoneId;
+	@Autowired(required = false)
+	ZoneId zoneId = ZoneId.systemDefault();
+	@PostConstruct
+	public void init() {
+		System.out.println("init mail service with zoneId" + this.zoneId);
 	}
+	@PreDestroy
+	public void shutdown(){
+		System.out.println("Shut down mail service");
+
+	}
+//	private ZoneId zoneId = ZoneId.systemDefault();
+//
+//	public void setZoneId(ZoneId zoneId) {
+//		this.zoneId = zoneId;
+//	}
 
 	public String getTime() {
 		return ZonedDateTime.now(this.zoneId).format(DateTimeFormatter.ISO_ZONED_DATE_TIME);

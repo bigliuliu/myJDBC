@@ -1,5 +1,6 @@
 package com.liu.learnjava.service;
 
+import com.liu.learnjava.validator.Validators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -11,12 +12,12 @@ import java.time.*;
 @Component
 public class UserService {
 	@Autowired
-	private MailService mailService;
-
-	public void setMailService(MailService mailService) {
+	MailService mailService;
+	@Autowired
+	Validators validators;
+	public UserService(@Autowired MailService mailService) {
 		this.mailService = mailService;
 	}
-
 	private List<User> users = new ArrayList<>(List.of( // users:
 			new User(1, "bob@example.com", "password", "Bob"), // bob
 			new User(2, "alice@example.com", "password", "Alice"), // alice
@@ -37,6 +38,7 @@ public class UserService {
 	}
 
 	public User register(String email, String password, String name) {
+		validators.validate(email,password,name);
 		users.forEach((user) -> {
 			if (user.getEmail().equalsIgnoreCase(email)) {
 				throw new RuntimeException("email exist.");
