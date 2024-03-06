@@ -3,6 +3,7 @@ package com.liu.learnjava.service;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -11,8 +12,13 @@ import java.time.*;
 
 @Component
 public class MailService {
-	@Autowired(required = false)
-	ZoneId zoneId = ZoneId.systemDefault();
+	@Value("#{smtpConfig.host}")
+	private String smtpHost;
+	@Value("#{smtpConfig.port}")
+	private int smtpPort;
+	@Autowired
+//	ZoneId zoneId = ZoneId.systemDefault();
+	private ZoneId zoneId;
 	@PostConstruct
 	public void init() {
 		System.out.println("init mail service with zoneId" + this.zoneId);
@@ -39,5 +45,9 @@ public class MailService {
 	public void sendRegistrationMail(User user) {
 		System.err.println(String.format("Welcome, %s!", user.getName()));
 
+	}
+	public void sendWelcomeMail(User user){
+		System.out.println("sent by smtp host :"+smtpHost);
+		System.out.println("sent by smtp port"+smtpPort);
 	}
 }

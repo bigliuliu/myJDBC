@@ -26,7 +26,8 @@ public class UserService {
 	public User login(String email, String password) {
 		for (User user : users) {
 			if (user.getEmail().equalsIgnoreCase(email) && user.getPassword().equals(password)) {
-				mailService.sendLoginMail(user);
+//				mailService.sendLoginMail(user);
+				mailService.sendWelcomeMail(user);
 				return user;
 			}
 		}
