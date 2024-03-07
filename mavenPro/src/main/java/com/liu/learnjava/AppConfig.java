@@ -33,17 +33,26 @@ public class AppConfig {
 		((ConfigurableApplicationContext) context).close();
 	}
 
-	@Bean
-	@Primary
-	@Qualifier("z")
-
-	ZoneId createZoneOfZ(@Value("${app.zone:Z}") String zoneId) {
-		return ZoneId.of(zoneId);
-	}
+//	@Bean
+//	@Primary
+//	@Qualifier("z")
+//	ZoneId createZoneOfZ(@Value("${app.zone:Z}") String zoneId) {
+//		return ZoneId.of(zoneId);
+//	}
 
 //	@Bean
 //	@Qualifier("utc8")
 //	ZoneId createZoneOfUTC8() {
 //		return ZoneId.of("UTC+08:00");
 //	}
+	@Bean
+	@Profile("!test")
+	ZoneId createZoneId(){
+		return ZoneId.systemDefault();
+	}
+	@Bean
+	@Profile("test")
+	ZoneId createZoneIdForTest(){
+		return ZoneId.of("America/New_York");
+	}
 }
