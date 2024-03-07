@@ -17,6 +17,7 @@ import java.time.ZoneId;
 @ComponentScan
 @PropertySource("app.properties")
 @PropertySource("smtp.properties")
+@EnableAspectJAutoProxy
 public class AppConfig {
 	public static void main(String[] args) {
 		ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
@@ -27,7 +28,7 @@ public class AppConfig {
 //		source
 		FileResourceService fileResourceService = context.getBean(FileResourceService.class);
 		fileResourceService.printLogo();
-		System.out.println(user.getName());
+//		System.out.println(user.getName());
 
 //		关闭ioc容器
 		((ConfigurableApplicationContext) context).close();

@@ -1,5 +1,6 @@
 package com.liu.learnjava.service;
 
+import com.liu.learnjava.metrics.MetricTime;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ public class MailService {
 		return ZonedDateTime.now(this.zoneId).format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
 	}
 
+	@MetricTime("loginMail")
 	public void sendLoginMail(User user) {
 		System.err.println(String.format("Hi, %s! You are logged in at %s", user.getName(), getTime()));
 	}

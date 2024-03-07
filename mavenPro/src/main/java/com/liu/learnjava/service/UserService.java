@@ -1,5 +1,6 @@
 package com.liu.learnjava.service;
 
+import com.liu.learnjava.metrics.MetricTime;
 import com.liu.learnjava.validator.Validators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -12,15 +13,15 @@ import java.time.*;
 
 @Component
 public class UserService {
-//	@Autowired(required = false)
-//	MailService mailService;
+	@Autowired(required = false)
+	MailService mailService;
 	@Autowired(required = false)
 	Mail mail;
 	@Autowired
 	Validators validators;
-//	public UserService(@Autowired MailService mailService) {
-//		this.mailService = mailService;
-//	}
+	public UserService(@Autowired MailService mailService) {
+		this.mailService = mailService;
+	}
 	private List<User> users = new ArrayList<>(List.of( // users:
 			new User(1, "bob@example.com", "password", "Bob"), // bob
 			new User(2, "alice@example.com", "password", "Alice"), // alice
@@ -36,7 +37,7 @@ public class UserService {
 				}else {
 					System.out.println("skip send email ...");
 				}
-//				mailService.sendLoginMail(user);
+				mailService.sendLoginMail(user);
 
 				return user;
 			}
@@ -47,7 +48,8 @@ public class UserService {
 	public User getUser(long id) {
 		return this.users.stream().filter(user -> user.getId() == id).findFirst().orElseThrow();
 	}
-
+//	监控register的性能
+@MetricTime("register")
 	public User register(String email, String password, String name) {
 		validators.validate(email,password,name);
 		users.forEach((user) -> {
