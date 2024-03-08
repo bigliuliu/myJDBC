@@ -4,13 +4,19 @@ import com.liu.learnjava.service.FileResourceService;
 import com.liu.learnjava.service.MailSession;
 import com.liu.learnjava.service.User;
 import com.liu.learnjava.service.UserService;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.time.ZoneId;
+import java.util.List;
 
 //类启动器
 @Configuration
@@ -18,12 +24,18 @@ import java.time.ZoneId;
 @PropertySource("app.properties")
 @PropertySource("smtp.properties")
 @EnableAspectJAutoProxy
+@PropertySource("jdbc.properties")
 public class AppConfig {
 	public static void main(String[] args) {
 		ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		UserService userService = context.getBean(UserService.class);
 		User user = userService.login("bob@example.com", "password");
 		userService.register("hhhhh@example.com", "password", "23");
+//		User userResult = userService.getUserById(6);
+//		User userResult = userService.getUserByEmail("4");
+		List<User> userResult = userService.getUsers(2);
+//		User userResult = userService.registerUser("hhhhh@example.com", "password", "这是接口注册");
+		System.out.println("这是查询的byId："+userResult.isEmpty());
 		context.getBean(MailSession.class);
 //		source
 		FileResourceService fileResourceService = context.getBean(FileResourceService.class);
@@ -55,5 +67,27 @@ public class AppConfig {
 	@Profile("test")
 	ZoneId createZoneIdForTest(){
 		return ZoneId.of("America/New_York");
+	}
+//	创建数据库连接必须的bean
+	@Value("${jdbc.url}")
+	String jdbcUrl;
+	@Value("${jdbc.username}")
+	String jdbcUsername;
+	@Value("${jdbc.password}")
+	String jdbcPassword;
+	@Bean
+	DataSource createDataSource(){
+		HikariConfig config = new HikariConfig();
+		config.setJdbcUrl(jdbcUrl);
+		config.setUsername(jdbcUsername);
+		config.setPassword(jdbcPassword);
+		config.addDataSourceProperty("autoCommit","true");
+		config.addDataSourceProperty("connectionTimeout","5");
+		config.addDataSourceProperty("idleTimeout","60");
+		return new HikariDataSource(config);
+	}
+	@Bean
+	JdbcTemplate createJdbcTemplate (@Autowired DataSource dataSource){
+		return new JdbcTemplate(dataSource);
 	}
 }

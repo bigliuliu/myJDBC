@@ -51,7 +51,29 @@
       <artifactId>spring-aspects</artifactId>
       <version>6.0.0</version>
     </dependency>
-<!--    <dependency>-->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>6.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.annotation</groupId>
+      <artifactId>jakarta.annotation-api</artifactId>
+      <version>2.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>5.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.7.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!--    <dependency>-->
 <!--      <groupId>org.apache.maven.plugins</groupId>-->
 <!--      <artifactId>maven-gpg-plugin</artifactId>-->
 <!--      <version>3.0.1</version>-->
