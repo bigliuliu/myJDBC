@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.time.*;
 
 @Component
+@Transactional
 public class UserService {
 	//	注入数据库
 	@Autowired
@@ -133,27 +135,52 @@ public class UserService {
 			);
 		},new Object[] { email});
 	}
-//	返回一行记录
-	public long getUser(){
-		return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM student",(ResultSet rs,int rowNum)->{
-//			select count* 查询只有一列，取第一列数据
-			return rs.getLong(1);
-		});
+	public User fetchUserByEmail(String email){
+		List<User> users = jdbcTemplate.query("SELECT * FROM student WHERE email = ?",(ResultSet rs,int rowNum)->{
+			return new User(
+					rs.getLong("id"),
+					rs.getString("email"),
+					rs.getString("password"),
+					rs.getString("name"));
+//					  name
+
+		},new Object[] {email});
+		return users.isEmpty() ? null : users.get(0);
 	}
+	public User fetchUserByEmail3(String email) {
+		List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email = ?", (ResultSet rs, int rowNum) -> {
+			return new User( // new User object:
+					rs.getLong("id"), // id
+					rs.getString("email"), // email
+					rs.getString("password"), // password
+					rs.getString("name")); // name
+		}, new Object[] { email });
+		return users.isEmpty() ? null : users.get(0);
+	}
+
+//	返回一行记录
+//	public long getUser(){
+//		return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM student",(ResultSet rs,int rowNum)->{
+////			select count* 查询只有一列，取第一列数据
+//			return rs.getLong(1);
+//		});
+//	}
 //返回多行记录
 public List<User> getUsers(int pageIndex){
 		int limit= 100;
 		int offset = limit*(pageIndex -1);
-		return jdbcTemplate.query("SELECT * FROM student LIMIT ? OFFSET ?",new BeanPropertyRowMapper<>(User.class),limit,offset);
+		return jdbcTemplate.query("SELECT * FROM users LIMIT ? OFFSET ?",new BeanPropertyRowMapper<>(User.class),new Object[] {limit,offset});
 }
 //更新
 	public void updateUser(User user){
 //		传入SQL，Sql参数，返回更新的行数
-		if(1!=jdbcTemplate.update("UPDATE student name = ? WHERE id = ?",user.getName(),user.getId())){
+		if(1!=jdbcTemplate.update("UPDATE users name = ? WHERE id = ?",user.getName(),user.getId())){
 			throw new RuntimeException("User not found by id");
 		}
 	}
 //	插入操作
+//	需要事务支持的方法加入@transactional注解/也可以加到class上，表示整个class方法都需要事务
+
 	public User registerUser(String email, String password,String name){
 //		创建一个keyHolder
 		KeyHolder holder = new GeneratedKeyHolder();
@@ -161,7 +188,7 @@ public List<User> getUsers(int pageIndex){
 //				参数1：preparedStatementCreator
 				(conn)->{
 //					传教preparedStatement时，必须指定RETURN_GENERATED_KEYS;
-					var ps= conn.prepareStatement("INSERT INTO student(email,password,name) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
+					var ps= conn.prepareStatement("INSERT INTO users(email,password,name) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
 					ps.setObject(1,email);
 					ps.setObject(2,password);
 					ps.setObject(3,name);
@@ -171,6 +198,9 @@ public List<User> getUsers(int pageIndex){
 				holder
 		)){
 			throw new RuntimeException("Insert failed");
+		}
+		if("root".equalsIgnoreCase(name)){
+			throw new RuntimeException("Invalid name, will rollback....");
 		}
 //		从KeyHolder中获取返回的自增值
 		return  new User(holder.getKey().longValue(),email,password,name);
