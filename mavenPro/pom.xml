@@ -93,6 +93,16 @@
       <version>2.7.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.5.11</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis-spring</artifactId>
+      <version>3.0.0</version>
+    </dependency>
     <!--    <dependency>-->
 <!--      <groupId>org.apache.maven.plugins</groupId>-->
 <!--      <artifactId>maven-gpg-plugin</artifactId>-->
