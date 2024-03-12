@@ -1,22 +1,24 @@
 package com.liu.learnjava;
 
-import com.liu.learnjava.service.*;
+import com.liu.learnjava.entity.AbstractEntity;
+import com.liu.learnjava.entity.User;
+import com.liu.learnjava.entityService.UserService;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.Properties;
 
 //类启动器
 @Configuration
@@ -30,60 +32,25 @@ import java.util.List;
 public class AppConfig {
 	public static void main(String[] args) {
 		ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-		context.getBean(MailSession.class);
-//		source
-		FileResourceService fileResourceService = context.getBean(FileResourceService.class);
-		fileResourceService.printLogo();
-		UserServiceDao userService = context.getBean(UserServiceDao.class);
-		System.out.println(userService.getClass()+"-------");
-//		User user = userService.login("bob@example.com", "password");
-//		userService.register("hhhhh@example.com", "password", "23");
-//		User userResult = userService.getUserById(6);
-//		User userResult = userService.getUserByEmail("4");
+		UserService userService = context.getBean(UserService.class);
 //		插入bob
 		if(userService.fetchUserByEmail("bo4343b@example.com")==null){
-			userService.registerUser("bo4343b@example.com", "password1", "Bob");
+		User bob =	userService.register("bo4343b@example.com", "password1", "Bob");
+			System.out.println("注册成功："+bob);
 		}
 		// 插入Alice:
 		if (userService.fetchUserByEmail("ali99@example.com") == null) {
-			userService.registerUser("ali99@example.com", "password2", "Ali656ce");
-		}
-		try {
-			userService.registerUser("root@example.com", "password3", "root");
-		}catch (RuntimeException e){
-			System.out.println(e.getMessage());
+		User alice = 	userService.register("ali99@example.com", "password2", "Ali656ce");
+			System.out.println("注册成功："+alice);
 		}
 //		查询所有用户
 		for(User u: userService.getUsers(1)){
 			System.out.println(u);
 		}
-//		System.out.println(user.getName());
-
+		User bob = userService.login("bo4343b@example.com","password1");
+		System.out.println(bob);
 //		关闭ioc容器
 		((ConfigurableApplicationContext) context).close();
-	}
-
-//	@Bean
-//	@Primary
-//	@Qualifier("z")
-//	ZoneId createZoneOfZ(@Value("${app.zone:Z}") String zoneId) {
-//		return ZoneId.of(zoneId);
-//	}
-
-//	@Bean
-//	@Qualifier("utc8")
-//	ZoneId createZoneOfUTC8() {
-//		return ZoneId.of("UTC+08:00");
-//	}
-	@Bean
-	@Profile("!test")
-	ZoneId createZoneId(){
-		return ZoneId.systemDefault();
-	}
-	@Bean
-	@Profile("test")
-	ZoneId createZoneIdForTest(){
-		return ZoneId.of("America/New_York");
 	}
 //	创建数据库连接必须的bean
 	@Value("${jdbc.url}")
@@ -103,13 +70,24 @@ public class AppConfig {
 		config.addDataSourceProperty("idleTimeout","60");
 		return new HikariDataSource(config);
 	}
+//	启用hibernate 需要创建的localsessionfactorybean
 	@Bean
-	JdbcTemplate createJdbcTemplate (@Autowired DataSource dataSource){
-		return new JdbcTemplate(dataSource);
+	LocalSessionFactoryBean createSessionFactory(@Autowired DataSource dataSource){
+		var props = new Properties();
+		props.setProperty("hibernate.hbm2ddl.auto","update");//生产环境不要使用
+//		props.setProperty("hibernate.dialect","org.hibernate.dialect.HSQLDialect");
+		props.setProperty("hibernate.dialect","org.hibernate.dialect.MySQLDialect");
+		props.setProperty("hibernate.show_sql","true");
+		var sessionFactoryBean = new LocalSessionFactoryBean();
+		sessionFactoryBean.setDataSource(dataSource);
+//		扫描指定的package获取所有entity class；
+		sessionFactoryBean.setPackagesToScan(AbstractEntity.class.getPackageName());
+		sessionFactoryBean.setHibernateProperties(props);
+		return sessionFactoryBean;
 	}
+//	创建hibernate事务管理器
 	@Bean
-//	事务管理器
-	PlatformTransactionManager createTxManager(@Autowired DataSource dataSource){
-		return  new DataSourceTransactionManager(dataSource);
+	PlatformTransactionManager createTxManager(@Autowired SessionFactory sessionFactory){
+		return  new HibernateTransactionManager(sessionFactory);
 	}
 }
