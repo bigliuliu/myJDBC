@@ -2,25 +2,58 @@ package com.liu.learnjava.entity;
 
 import jakarta.persistence.*;
 
-@NamedQueries(@NamedQuery(name="login",query = "SELECT u FROM User u WHERE u.email = :e AND u.password = :pwd"))
-@Entity
-@Table(name = "users")
-public class User extends AbstractEntity {
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+
+public class User {
+
+	private Long id;
+
 	private String email;
 	private String password;
 	private String name;
 
+	private long createdAt;
+
 	public User() {
+
 	}
 
-	public User(long id, String email, String password, String name) {
-		setId(id);
-		setEmail(email);
-		setName(name);
-		setPassword(password);
+	public Long getId() {
+		return id;
 	}
 
-	@Column(nullable = false, unique = true, length = 100)
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public long getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(long createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getCreatedDateTime() {
+		return Instant.ofEpochMilli(this.createdAt).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+	}
+
+	public String getImageUrl() {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] hash = md.digest(this.email.trim().toLowerCase().getBytes(StandardCharsets.UTF_8));
+			return "https://www.gravatar.com/avatar/" + String.format("%032x", new BigInteger(1, hash));
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public String getEmail() {
 		return email;
 	}
@@ -29,7 +62,6 @@ public class User extends AbstractEntity {
 		this.email = email;
 	}
 
-	@Column(nullable = false, length = 100)
 	public String getPassword() {
 		return password;
 	}
@@ -38,7 +70,6 @@ public class User extends AbstractEntity {
 		this.password = password;
 	}
 
-	@Column(nullable = false, length = 200)
 	public String getName() {
 		return name;
 	}
