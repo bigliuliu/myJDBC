@@ -20,10 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -85,12 +82,26 @@ public class AppConfig {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addResourceHandlers(ResourceHandlerRegistry registry){
-				registry.addResourceHandler("/static/**").addResourceLocations("/static/");
+				registry.addResourceHandler("/static/**")
+						.addResourceLocations("/static/");
 			}
 			public void addInterceptors(InterceptorRegistry registry) {
 				for (var interceptor : interceptors) {
 					registry.addInterceptor(interceptor);
 				}
+			}
+			/*
+			 * 允许跨域访问
+			 * 方法二
+			 * 全局CORS配置
+			 * */
+			public void addCorsMappings(CorsRegistry registry){
+				registry.addMapping("/api/**")
+						// 允许白名单域名进行跨域访问
+						.allowedOrigins("http://local.liaoxuefeng.com:8080")
+						// 允许所有请求方法跨域调用
+						.allowedMethods("GET","POST")
+						.maxAge(3600);
 			}
 		};
 	}

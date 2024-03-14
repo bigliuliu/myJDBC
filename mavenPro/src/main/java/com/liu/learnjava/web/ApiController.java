@@ -5,12 +5,21 @@ import com.liu.learnjava.entity.User;
 import com.liu.learnjava.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+/*
+*允许跨域访问
+*  方法一
+* */
+@CrossOrigin(origins = "http://local.liaoxuefeng.com:8080")
+// @CrossOrigin(origins = {"a.com","b.com"})
+// 允许任何域访问
+// @CrossOrigin(origins = "*")
 public class ApiController {
 	@Autowired
 	UserService userService;
@@ -47,5 +56,12 @@ public class ApiController {
 	public static class SignInRequest{
 		public String email;
 		public String password;
+	}
+	/*
+	* 注解处理异常
+	* */
+	@ExceptionHandler(RuntimeException.class)
+	public ModelAndView handleUnknowException(Exception e){
+		return new ModelAndView("index.html",Map.of("error","登录失败","message",e.getMessage()));
 	}
 }
