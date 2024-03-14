@@ -24,7 +24,7 @@ public class UserService {
 	RowMapper<User> userRowMapper = new BeanPropertyRowMapper<>(User.class);
 
 	public User getUserById(long id) {
-		return jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?", userRowMapper, new Object[] { id });
+		return  jdbcTemplate.queryForObject("SELECT * FROM users WHERE id = ?", userRowMapper, new Object[] { id });
 	}
 
 	public User getUserByEmail(String email) {
@@ -66,5 +66,8 @@ public class UserService {
 		if (1 != jdbcTemplate.update("UPDATE user SET name = ? WHERE id=?", user.getName(), user.getId())) {
 			throw new RuntimeException("User not found by id");
 		}
+	}
+	public List<User> getUsers(){
+		return jdbcTemplate.query("SELECT * FROM users",userRowMapper);
 	}
 }
