@@ -18,8 +18,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -79,11 +81,16 @@ public class AppConfig {
 	// -- Mvc configuration ---------------------------------------------------
 // 	spring mvc 需要的bean
 	@Bean
-	WebMvcConfigurer createWebMvcConfigurer(){
+	WebMvcConfigurer createWebMvcConfigurer(@Autowired HandlerInterceptor[] interceptors){
 		return new WebMvcConfigurer() {
 			@Override
 			public void addResourceHandlers(ResourceHandlerRegistry registry){
 				registry.addResourceHandler("/static/**").addResourceLocations("/static/");
+			}
+			public void addInterceptors(InterceptorRegistry registry) {
+				for (var interceptor : interceptors) {
+					registry.addInterceptor(interceptor);
+				}
 			}
 		};
 	}
